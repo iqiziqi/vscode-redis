@@ -1,4 +1,10 @@
+# Node
 out
 node_modules
 .vscode-test/
+
+# Packages
 *.vsix
+
+# Editor
+.vscode
