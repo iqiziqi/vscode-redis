@@ -1,29 +1,29 @@
-import { Event, EventEmitter, TreeDataProvider, TreeItem, workspace } from 'vscode';
+import * as vscode from 'vscode';
 import { IConfiguration } from './defines';
 import Connection from './Connection';
 
-export default class ConnectionProvider implements TreeDataProvider<TreeItem> {
+export default class ConnectionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
     public connections: Map<string, Connection>;
-    public connectionEvent: EventEmitter<TreeItem>;
-    public onDidChangeTreeData: Event<TreeItem>;
+    public connectionEvent: vscode.EventEmitter<vscode.TreeItem>;
+    public onDidChangeTreeData: vscode.Event<vscode.TreeItem>;
 
     constructor() {
-        this.connectionEvent = new EventEmitter();
+        this.connectionEvent = new vscode.EventEmitter();
         this.onDidChangeTreeData = this.connectionEvent.event;
         this.connections = new Map();
     }
 
-    public getTreeItem(element: TreeItem): TreeItem {
+    public getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
         return element;
     }
 
-    public getChildren(element?: TreeItem | undefined): TreeItem[] {
+    public getChildren(element?: vscode.TreeItem | undefined): vscode.TreeItem[] {
         return Array.from(this.connections.values());
     }
 
     public get configurations() {
-        return workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
+        return vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
     }
 
     public connect(name: string) {
@@ -35,6 +35,7 @@ export default class ConnectionProvider implements TreeDataProvider<TreeItem> {
     }
 
     public disconnect(name: string) {
+        this.connections.get(name)?.disconnect;
         this.connections.delete(name);
         this.connectionEvent.fire();
     }

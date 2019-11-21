@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { resolve } from 'path';
 import { RedisClient } from 'redis';
-import { IConfiguration, ConnectionStatus } from './defines';
+import { IConfiguration } from './defines';
 
 export default class Connection extends vscode.TreeItem {
 
@@ -11,8 +11,6 @@ export default class Connection extends vscode.TreeItem {
     public readonly host: string;
     public readonly port: number;
 
-    public status: number;
-
     constructor(config: IConfiguration) {
         super(config.name);
         super.iconPath = {
@@ -20,10 +18,17 @@ export default class Connection extends vscode.TreeItem {
             light: resolve(__dirname, '../resources/light/database.svg'),
         };
 
-        this.client = null;
         this.name = config.name;
         this.host = config.host;
         this.port = config.port;
-        this.status = ConnectionStatus.Disconnected;
+        this.client = new RedisClient({
+            host: this.host,
+            port: this.port,
+        });
+    }
+
+    public disconnect() {
+        this.client?.quit();
+        this.client = null;
     }
 }
