@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
             const names = configs?.map(c => ({ label: c.name }));
             const name = await vscode.window.showQuickPick(names);
             if (!name) return;
-            connectionProvider.connect(name.label);
+            await connectionProvider.connect(name.label);
         },
     );
 

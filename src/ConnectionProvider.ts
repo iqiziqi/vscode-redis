@@ -26,16 +26,23 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         return vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
     }
 
-    public connect(name: string) {
+    public async connect(name: string) {
         const config = this.configurations.filter(c => c.name === name)[0];
-        if (config) {
-            this.connections.set(name, new Connection(config));
+        if (!config) {
+            vscode.window.showErrorMessage('Can not find this connection.');
+        }
+        try {
+            const connection = new Connection(config);
+            await connection.client.connect();
+            this.connections.set(name, connection);
             this.connectionEvent.fire();
+        } catch (e) {
+            await vscode.window.showErrorMessage(e.message, 'Ok');
         }
     }
 
     public disconnect(name: string) {
-        this.connections.get(name)?.disconnect;
+        this.connections.get(name)?.client?.disconnect();
         this.connections.delete(name);
         this.connectionEvent.fire();
     }

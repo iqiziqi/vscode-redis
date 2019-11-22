@@ -1,15 +1,12 @@
 import * as vscode from 'vscode';
+import * as Redis from 'ioredis';
 import { resolve } from 'path';
-import { RedisClient } from 'redis';
 import { IConfiguration } from './defines';
 
 export default class Connection extends vscode.TreeItem {
 
-    private client: RedisClient | null;
-
     public readonly name: string;
-    public readonly host: string;
-    public readonly port: number;
+    public readonly client: Redis.Redis;
 
     constructor(config: IConfiguration) {
         super(config.name);
@@ -19,16 +16,12 @@ export default class Connection extends vscode.TreeItem {
         };
 
         this.name = config.name;
-        this.host = config.host;
-        this.port = config.port;
-        this.client = new RedisClient({
-            host: this.host,
-            port: this.port,
+        this.client = new Redis({
+            host: config.host,
+            port: config.port,
+            lazyConnect: true,
+            connectTimeout: 1000,
+            reconnectOnError: () => false,
         });
-    }
-
-    public disconnect() {
-        this.client?.quit();
-        this.client = null;
     }
 }
