@@ -52,7 +52,7 @@
 			"view/item/context": [
 				{
 					"command": "redis.disconnect",
-					"when": "view == redis-explorer",
+					"when": "view == redis-explorer && viewItem == connection-tree-item",
 					"group": "inline"
 				}
 			]
