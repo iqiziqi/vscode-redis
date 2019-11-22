@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     const disconnectCommand = vscode.commands.registerCommand(
         'redis.disconnect',
         async (connection) => {
-            const name = connection?.name ??
+            const name = connection?.label ??
                 await vscode.window.showQuickPick(Array.from(connectionProvider.connections.keys()));
             if (!name) return;
             connectionProvider.disconnect(name);

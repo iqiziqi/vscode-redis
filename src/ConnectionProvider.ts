@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
+import * as IORedis from 'ioredis';
+import ConnectionTreeItem from './ConnectionTreeItem';
+import KeyTreeItem from './KeyTreeItem';
 import { IConfiguration } from './defines';
-import Connection from './Connection';
 
 export default class ConnectionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
-    public connections: Map<string, Connection>;
+    public connections: Map<string, IORedis.Redis>;
     public connectionEvent: vscode.EventEmitter<vscode.TreeItem>;
     public onDidChangeTreeData: vscode.Event<vscode.TreeItem>;
 
@@ -18,8 +20,17 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         return element;
     }
 
-    public getChildren(element?: vscode.TreeItem | undefined): vscode.TreeItem[] {
-        return Array.from(this.connections.values());
+    public async getChildren(element?: vscode.TreeItem | undefined): Promise<vscode.TreeItem[]> {
+        switch (true) {
+            case element === undefined:
+                const names = Array.from(this.connections.keys());
+                return names.map(name => new ConnectionTreeItem(name));
+            case element instanceof ConnectionTreeItem:
+                const keys = await this.connections.get(element!.label!)?.keys('*');
+                return keys?.map(key => new KeyTreeItem(key)) ?? [];
+            default:
+                return [];
+        }
     }
 
     public get configurations() {
@@ -32,9 +43,15 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
             vscode.window.showErrorMessage('Can not find this connection.');
         }
         try {
-            const connection = new Connection(config);
-            await connection.client.connect();
-            this.connections.set(name, connection);
+            const client = new IORedis({
+                host: config.host,
+                port: config.port,
+                lazyConnect: true,
+                connectTimeout: 1000,
+                reconnectOnError: () => false,
+            });
+            await client.connect();
+            this.connections.set(name, client);
             this.connectionEvent.fire();
         } catch (e) {
             await vscode.window.showErrorMessage(e.message, 'Ok');
@@ -42,7 +59,7 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
     }
 
     public disconnect(name: string) {
-        this.connections.get(name)?.client?.disconnect();
+        this.connections.get(name)?.disconnect();
         this.connections.delete(name);
         this.connectionEvent.fire();
     }
