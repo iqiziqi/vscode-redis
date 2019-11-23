@@ -28,8 +28,16 @@ export function activate(context: vscode.ExtensionContext) {
         },
     );
 
+    const refreshKeysCommand = vscode.commands.registerCommand(
+        'redis.refreshKeys',
+        (connection) => {
+            connectionProvider.refreshKeys(connection?.label);
+        },
+    )
+
     context.subscriptions.push(connectCommand);
     context.subscriptions.push(disconnectCommand);
+    context.subscriptions.push(refreshKeysCommand);
 }
 
 export function deactivate() {}

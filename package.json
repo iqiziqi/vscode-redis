@@ -31,7 +31,15 @@
 					"dark": "resources/dark/remove.svg",
 					"light": "resources/light/remove.svg"
 				}
-			}
+            },
+            {
+                "command": "redis.refreshKeys",
+                "title": "Redis: Refresh keys",
+                "icon": {
+                    "dark": "resources/dark/refresh.svg",
+                    "light": "resources/light/refresh.svg"
+                }
+            }
 		],
 		"views": {
 			"explorer": [
@@ -53,8 +61,13 @@
 				{
 					"command": "redis.disconnect",
 					"when": "view == redis-explorer && viewItem == connection-tree-item",
-					"group": "inline"
-				}
+					"group": "inline@2"
+                },
+                {
+                    "command": "redis.refreshKeys",
+                    "when": "view == redis-explorer && viewItem == connection-tree-item",
+                    "group": "inline@1"
+                }
 			]
 		},
 		"configuration": [

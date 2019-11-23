@@ -63,4 +63,8 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         this.connections.delete(name);
         this.connectionEvent.fire();
     }
+
+    public refreshKeys(name: string) {
+        this.connectionEvent.fire();
+    }
 }
