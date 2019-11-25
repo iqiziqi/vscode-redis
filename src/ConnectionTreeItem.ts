@@ -5,6 +5,7 @@ import { IConfiguration } from './defines';
 
 export default class ConnectionTreeItem extends vscode.TreeItem {
 
+    public name: string;
     public contextValue = 'connection-tree-item';
     public iconPath = {
         dark: resolve(__dirname, '../resources/dark/database.svg'),
@@ -15,6 +16,7 @@ export default class ConnectionTreeItem extends vscode.TreeItem {
 
     constructor(config: IConfiguration) {
         super(config.name);
+        this.name = config.name;
         this.client = new IORedis({
             host: config.host,
             port: config.port,

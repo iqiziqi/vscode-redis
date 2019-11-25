@@ -22,10 +22,11 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
     public async getChildren(element?: vscode.TreeItem | undefined): Promise<vscode.TreeItem[]> {
         switch (true) {
             case element === undefined:
-                return Array.from(this.connections.values());
+                return this.connectionList;
             case element instanceof ConnectionTreeItem:
+                const connection = (element as ConnectionTreeItem).name;
                 const keys = await this.connections.get(element!.label!)?.client?.keys('*');
-                return keys?.map(key => new KeyTreeItem(key)) ?? [];
+                return keys?.map(key => new KeyTreeItem(connection, key)) ?? [];
             default:
                 return [];
         }
@@ -33,6 +34,14 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
 
     public get configurations() {
         return vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
+    }
+
+    public get connectionList () {
+        return Array.from(this.connections.values());
+    }
+
+    public get connectionNameList() {
+        return Array.from(this.connections.keys());
     }
 
     public async connect(name: string) {
@@ -63,5 +72,25 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         if (item) {
             this.connectionEvent.fire(item);
         }
+    }
+
+    public async setKey(connection: string, key: string, value: string) {
+        const item = this.connections.get(connection);
+        if (item) {
+            await item.client.set(key, value);
+            this.connectionEvent.fire(item);
+        }
+    }
+
+    public async deleteKey(connection: string, key: string) {
+        const item = this.connections.get(connection);
+        if (item) {
+            await item.client.del(key);
+            this.connectionEvent.fire(item);
+        }
+    }
+
+    public async keys(name: string) {
+        return await this.connections.get(name)?.client.keys('*');
     }
 }

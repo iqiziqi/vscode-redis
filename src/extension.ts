@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const connectCommand = vscode.commands.registerCommand(
         'redis.connect',
-        async () => {
+        async _ => {
             const configs = vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') || [];
             const names = configs?.map(c => ({ label: c.name }));
             const name = await vscode.window.showQuickPick(names);
@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const disconnectCommand = vscode.commands.registerCommand(
         'redis.disconnect',
-        async (connection) => {
+        async connection => {
             const name = connection?.label ??
                 await vscode.window.showQuickPick(Array.from(connectionProvider.connections.keys()));
             if (!name) return;
@@ -30,14 +30,46 @@ export function activate(context: vscode.ExtensionContext) {
 
     const refreshKeysCommand = vscode.commands.registerCommand(
         'redis.refreshKeys',
-        (connection) => {
+        connection => {
             connectionProvider.refreshKeys(connection?.label);
         },
+    );
+
+    const setKey = vscode.commands.registerCommand(
+        'redis.setKey',
+        async connection => {
+            const connectionName = connection?.name ??
+                await vscode.window.showQuickPick(Array.from(connectionProvider.connections.keys()));
+            if (!connectionName) return;
+            const key = await vscode.window.showInputBox();
+            if (!key) return;
+            const value = await vscode.window.showInputBox();
+            if (!value) return;
+            connectionProvider.setKey(connectionName, key, value);
+        }
     )
+
+    const deleteKey = vscode.commands.registerCommand(
+        'redis.deleteKey',
+        async key => {
+            if (key) {
+                connectionProvider.deleteKey(key.connection, key.name);
+                return;
+            }
+            const connection = await vscode.window.showQuickPick(connectionProvider.connectionNameList);
+            if (!connection) return;
+            const keys = await connectionProvider.keys(connection) ?? [];
+            const name = await vscode.window.showQuickPick(keys);
+            if (!name) return;
+            connectionProvider.deleteKey(connection, name);
+        }
+    );
 
     context.subscriptions.push(connectCommand);
     context.subscriptions.push(disconnectCommand);
     context.subscriptions.push(refreshKeysCommand);
+    context.subscriptions.push(setKey);
+    context.subscriptions.push(deleteKey);
 }
 
 export function deactivate() {}

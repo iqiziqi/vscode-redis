@@ -1,38 +1,41 @@
 {
-	"name": "vscode-redis",
-	"displayName": "vscode-redis",
-	"description": "A simple vscode extension for redis",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.35.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:redis.connect",
-		"onCommand:redis.disconnect"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
+    "name": "vscode-redis",
+    "displayName": "vscode-redis",
+    "description": "A simple vscode extension for redis",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.35.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:redis.connect",
+        "onCommand:redis.disconnect",
+        "onCommand:redis.refreshKeys",
+        "onCommand:redis.setKey",
+        "onCommand:redis.deleteKey"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
                 "command": "redis.connect",
                 "category": "Redis",
-				"title": "Connect",
-				"icon": {
-					"dark": "resources/dark/connect.svg",
-					"light": "resources/light/connect.svg"
-				}
-			},
-			{
+                "title": "Connect",
+                "icon": {
+                    "dark": "resources/dark/connect.svg",
+                    "light": "resources/light/connect.svg"
+                }
+            },
+            {
                 "command": "redis.disconnect",
                 "category": "Redis",
-				"title": "Disconnect",
-				"icon": {
-					"dark": "resources/dark/remove.svg",
-					"light": "resources/light/remove.svg"
-				}
+                "title": "Disconnect",
+                "icon": {
+                    "dark": "resources/dark/remove.svg",
+                    "light": "resources/light/remove.svg"
+                }
             },
             {
                 "command": "redis.refreshKeys",
@@ -42,79 +45,105 @@
                     "dark": "resources/dark/refresh.svg",
                     "light": "resources/light/refresh.svg"
                 }
+            },
+            {
+                "command": "redis.setKey",
+                "category": "Redis",
+                "title": "Set a key",
+                "icon": {
+                    "dark": "resources/dark/add.svg",
+                    "light": "resources/light/add.svg"
+                }
+            },
+            {
+                "command": "redis.deleteKey",
+                "category": "Redis",
+                "title": "Delete a key",
+                "icon": {
+                    "dark": "resources/dark/remove.svg",
+                    "light": "resources/light/remove.svg"
+                }
             }
-		],
-		"views": {
-			"explorer": [
-				{
-					"id": "redis-explorer",
-					"name": "redis"
-				}
-			]
-		},
-		"menus": {
-			"view/title": [
-				{
-					"command": "redis.connect",
-					"when": "view == redis-explorer",
-					"group": "navigation"
-				}
-			],
-			"view/item/context": [
-				{
-					"command": "redis.disconnect",
-					"when": "view == redis-explorer && viewItem == connection-tree-item",
-					"group": "inline@2"
+        ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "redis-explorer",
+                    "name": "redis"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "redis.connect",
+                    "when": "view == redis-explorer",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "redis.disconnect",
+                    "when": "view == redis-explorer && viewItem == connection-tree-item",
+                    "group": "inline@9"
                 },
                 {
                     "command": "redis.refreshKeys",
-                    "when": "view == redis-explorer && viewItem == connection-tree-item",
-                    "group": "inline@1"
+                    "when": "view == redis-explorer && viewItem == connection-tree-item"
+                },
+                {
+                    "command": "redis.setKey",
+                    "when": "view == redis-explorer && viewItem == connection-tree-item"
+                },
+                {
+                    "command": "redis.deleteKey",
+                    "when": "view == redis-explorer && viewItem == key-tree-item",
+                    "group": "inline@9"
                 }
-			]
-		},
-		"configuration": [
-			{
-				"title": "Redis",
-				"properties": {
-					"redis.connections": {
-						"type": "array",
-						"default": [],
-						"items": {
-							"type": "object",
-							"properties": {
-								"host": {
-									"type": "string"
-								},
-								"port": {
-									"type": "number"
-								},
-								"name": {
-									"type": "string"
-								}
-							}
-						}
-					}
-				}
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "npm run compile && node ./node_modules/vscode/bin/test"
-	},
-	"devDependencies": {
-		"@types/ioredis": "^4.0.19",
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^10.12.21",
-		"tslint": "^5.12.1",
-		"typescript": "^3.7.2",
-		"vscode": "^1.1.28"
-	},
-	"dependencies": {
-		"ioredis": "^4.14.1"
-	}
+            ]
+        },
+        "configuration": [
+            {
+                "title": "Redis",
+                "properties": {
+                    "redis.connections": {
+                        "type": "array",
+                        "default": [],
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "host": {
+                                    "type": "string"
+                                },
+                                "port": {
+                                    "type": "number"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/ioredis": "^4.0.19",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^10.12.21",
+        "tslint": "^5.12.1",
+        "typescript": "^3.7.2",
+        "vscode": "^1.1.28"
+    },
+    "dependencies": {
+        "ioredis": "^4.14.1"
+    }
 }
