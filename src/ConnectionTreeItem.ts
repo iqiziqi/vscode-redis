@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
+import * as IORedis from 'ioredis';
 import { resolve } from 'path';
+import { IConfiguration } from './defines';
 
 export default class ConnectionTreeItem extends vscode.TreeItem {
 
@@ -9,8 +11,20 @@ export default class ConnectionTreeItem extends vscode.TreeItem {
         light: resolve(__dirname, '../resources/light/database.svg'),
     };
     public collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+    public client: IORedis.Redis;
 
-    constructor(name: string) {
-        super(name);
+    constructor(config: IConfiguration) {
+        super(config.name);
+        this.client = new IORedis({
+            host: config.host,
+            port: config.port,
+            lazyConnect: true,
+            connectTimeout: 3000,
+            reconnectOnError: () => false,
+        });
+    }
+
+    public get configurations() {
+        return vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
     }
 }

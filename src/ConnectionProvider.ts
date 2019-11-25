@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import * as IORedis from 'ioredis';
 import ConnectionTreeItem from './ConnectionTreeItem';
 import KeyTreeItem from './KeyTreeItem';
 import { IConfiguration } from './defines';
 
 export default class ConnectionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
-    public connections: Map<string, IORedis.Redis>;
+    public connections: Map<string, ConnectionTreeItem>;
     public connectionEvent: vscode.EventEmitter<vscode.TreeItem>;
     public onDidChangeTreeData: vscode.Event<vscode.TreeItem>;
 
@@ -23,10 +22,9 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
     public async getChildren(element?: vscode.TreeItem | undefined): Promise<vscode.TreeItem[]> {
         switch (true) {
             case element === undefined:
-                const names = Array.from(this.connections.keys());
-                return names.map(name => new ConnectionTreeItem(name));
+                return Array.from(this.connections.values());
             case element instanceof ConnectionTreeItem:
-                const keys = await this.connections.get(element!.label!)?.keys('*');
+                const keys = await this.connections.get(element!.label!)?.client?.keys('*');
                 return keys?.map(key => new KeyTreeItem(key)) ?? [];
             default:
                 return [];
@@ -43,30 +41,27 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
             vscode.window.showErrorMessage(`Can't find this connection.`);
             return;
         }
-        const client = new IORedis({
-            host: config.host,
-            port: config.port,
-            lazyConnect: true,
-            connectTimeout: 3000,
-            reconnectOnError: () => false,
-        });
+        const item = new ConnectionTreeItem(config);
         try {
-            await client.connect();
-            this.connections.set(name, client);
+            await item.client.connect();
+            this.connections.set(name, item);
             this.connectionEvent.fire();
         } catch (e) {
-            await client.quit();
+            await item.client.quit();
             await vscode.window.showErrorMessage(`Can't connect to ${name}`, 'Ok');
         }
     }
 
     public disconnect(name: string) {
-        this.connections.get(name)?.disconnect();
+        this.connections.get(name)?.client?.disconnect();
         this.connections.delete(name);
         this.connectionEvent.fire();
     }
 
     public refreshKeys(name: string) {
-        this.connectionEvent.fire();
+        const item = this.connections.get(name);
+        if (item) {
+            this.connectionEvent.fire(item);
+        }
     }
 }
