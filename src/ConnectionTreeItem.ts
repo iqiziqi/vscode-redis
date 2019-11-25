@@ -25,8 +25,4 @@ export default class ConnectionTreeItem extends vscode.TreeItem {
             reconnectOnError: () => false,
         });
     }
-
-    public get configurations() {
-        return vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
-    }
 }

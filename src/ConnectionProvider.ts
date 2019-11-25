@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import ConnectionTreeItem from './ConnectionTreeItem';
 import KeyTreeItem from './KeyTreeItem';
-import { IConfiguration } from './defines';
+import { getConnections } from './utils';
 
 export default class ConnectionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
@@ -32,10 +32,6 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         }
     }
 
-    public get configurations() {
-        return vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') ?? [];
-    }
-
     public get connectionList () {
         return Array.from(this.connections.values());
     }
@@ -45,7 +41,7 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
     }
 
     public async connect(name: string) {
-        const config = this.configurations.filter(c => c.name === name)[0];
+        const config = getConnections().filter(c => c.name === name)[0];
         if (!config) {
             vscode.window.showErrorMessage(`Can't find this connection.`);
             return;
