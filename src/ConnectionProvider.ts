@@ -40,21 +40,23 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
     public async connect(name: string) {
         const config = this.configurations.filter(c => c.name === name)[0];
         if (!config) {
-            vscode.window.showErrorMessage('Can not find this connection.');
+            vscode.window.showErrorMessage(`Can't find this connection.`);
+            return;
         }
+        const client = new IORedis({
+            host: config.host,
+            port: config.port,
+            lazyConnect: true,
+            connectTimeout: 3000,
+            reconnectOnError: () => false,
+        });
         try {
-            const client = new IORedis({
-                host: config.host,
-                port: config.port,
-                lazyConnect: true,
-                connectTimeout: 1000,
-                reconnectOnError: () => false,
-            });
             await client.connect();
             this.connections.set(name, client);
             this.connectionEvent.fire();
         } catch (e) {
-            await vscode.window.showErrorMessage(e.message, 'Ok');
+            await client.quit();
+            await vscode.window.showErrorMessage(`Can't connect to ${name}`, 'Ok');
         }
     }
 
