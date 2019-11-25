@@ -17,16 +17,18 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "redis.connect",
-				"title": "Redis: Connect",
+                "command": "redis.connect",
+                "category": "Redis",
+				"title": "Connect",
 				"icon": {
 					"dark": "resources/dark/connect.svg",
 					"light": "resources/light/connect.svg"
 				}
 			},
 			{
-				"command": "redis.disconnect",
-				"title": "Redis: Disconnect",
+                "command": "redis.disconnect",
+                "category": "Redis",
+				"title": "Disconnect",
 				"icon": {
 					"dark": "resources/dark/remove.svg",
 					"light": "resources/light/remove.svg"
@@ -34,7 +36,8 @@
             },
             {
                 "command": "redis.refreshKeys",
-                "title": "Redis: Refresh keys",
+                "category": "Redis",
+                "title": "Refresh keys",
                 "icon": {
                     "dark": "resources/dark/refresh.svg",
                     "light": "resources/light/refresh.svg"
