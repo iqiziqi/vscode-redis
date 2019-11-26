@@ -63,6 +63,11 @@
                     "dark": "resources/dark/remove.svg",
                     "light": "resources/light/remove.svg"
                 }
+            },
+            {
+                "command": "redis.getValue",
+                "category": "Redis",
+                "title": "Get value"
             }
         ],
         "views": {
@@ -99,6 +104,10 @@
                     "command": "redis.deleteKey",
                     "when": "view == redis-explorer && viewItem == key-tree-item",
                     "group": "inline@9"
+                },
+                {
+                    "command": "redis.getValue",
+                    "when": "view == redis-explorer && viewItem == key-tree-item"
                 }
             ]
         },

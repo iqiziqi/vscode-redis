@@ -70,6 +70,13 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         }
     }
 
+    public async getValue(connection: string, key: string) {
+        const item = this.connections.get(connection);
+        if (item) {
+            return await item.client.get(key);
+        }
+    }
+
     public async setKey(connection: string, key: string, value: string) {
         const item = this.connections.get(connection);
         if (item) {

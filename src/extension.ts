@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import ConnectionProvider from './ConnectionProvider';
 import { IConfiguration } from './defines';
+import { outputChannel } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -35,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
     );
 
-    const setKey = vscode.commands.registerCommand(
+    const setKeyCommand = vscode.commands.registerCommand(
         'redis.setKey',
         async connection => {
             const connectionName = connection?.name ??
@@ -49,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     )
 
-    const deleteKey = vscode.commands.registerCommand(
+    const deleteKeyCommand = vscode.commands.registerCommand(
         'redis.deleteKey',
         async key => {
             if (key) {
@@ -65,11 +66,23 @@ export function activate(context: vscode.ExtensionContext) {
         }
     );
 
+    const getValueCommand = vscode.commands.registerCommand(
+        'redis.getValue',
+        async key => {
+            if (key) {
+                const value = await connectionProvider.getValue(key.connection, key.name);
+                outputChannel.appendLine(`Output: ${value}\n`);
+                outputChannel.show();
+            }
+        },
+    );
+
     context.subscriptions.push(connectCommand);
     context.subscriptions.push(disconnectCommand);
     context.subscriptions.push(refreshKeysCommand);
-    context.subscriptions.push(setKey);
-    context.subscriptions.push(deleteKey);
+    context.subscriptions.push(setKeyCommand);
+    context.subscriptions.push(deleteKeyCommand);
+    context.subscriptions.push(getValueCommand);
 }
 
 export function deactivate() {}
