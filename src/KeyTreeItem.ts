@@ -21,11 +21,17 @@ export default class KeyTreeItem extends vscode.TreeItem {
                 dark: resolve(__dirname, '../resources/dark/string.svg'),
                 light: resolve(__dirname, '../resources/light/string.svg'),
             };
-            case 'set':
-            case 'zset':
             case 'list': return {
                 dark: resolve(__dirname, '../resources/dark/list.svg'),
                 light: resolve(__dirname, '../resources/light/list.svg'),
+            };
+            case 'set': return {
+                dark: resolve(__dirname, '../resources/dark/set.svg'),
+                light: resolve(__dirname, '../resources/light/set.svg'),
+            };
+            case 'zset': return {
+                dark: resolve(__dirname, '../resources/dark/zset.svg'),
+                light: resolve(__dirname, '../resources/light/zset.svg'),
             };
             case 'hash': return {
                 dark: resolve(__dirname, '../resources/dark/hash.svg'),
