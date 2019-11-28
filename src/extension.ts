@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import ConnectionProvider from './ConnectionProvider';
+import KeyTreeItem from './KeyTreeItem';
+import ConnectionTreeItem from './ConnectionTreeItem';
 import { IConfiguration } from './defines';
 import { outputChannel } from './utils';
 
@@ -10,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const connectCommand = vscode.commands.registerCommand(
         'redis.connect',
-        async _ => {
+        async () => {
             const configs = vscode.workspace.getConfiguration().get<IConfiguration[]>('redis.connections') || [];
             const names = configs?.map(c => ({ label: c.name }));
             const name = await vscode.window.showQuickPick(names);
@@ -21,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const disconnectCommand = vscode.commands.registerCommand(
         'redis.disconnect',
-        async connection => {
+        async (connection: ConnectionTreeItem) => {
             const name = connection?.label ??
                 await vscode.window.showQuickPick(Array.from(connectionProvider.connections.keys()));
             if (!name) return;
@@ -31,14 +33,14 @@ export function activate(context: vscode.ExtensionContext) {
 
     const refreshKeysCommand = vscode.commands.registerCommand(
         'redis.refreshKeys',
-        connection => {
-            connectionProvider.refreshKeys(connection?.label);
+        (connection: ConnectionTreeItem) => {
+            connectionProvider.refreshKeys(connection.name);
         },
     );
 
     const setKeyCommand = vscode.commands.registerCommand(
         'redis.setKey',
-        async connection => {
+        async (connection: ConnectionTreeItem) => {
             const connectionName = connection?.name ??
                 await vscode.window.showQuickPick(Array.from(connectionProvider.connections.keys()));
             if (!connectionName) return;
@@ -52,9 +54,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     const deleteKeyCommand = vscode.commands.registerCommand(
         'redis.deleteKey',
-        async key => {
+        async (key: KeyTreeItem) => {
             if (key) {
-                connectionProvider.deleteKey(key.connection, key.name);
+                connectionProvider.deleteKey(key.connectionName, key.name);
                 return;
             }
             const connection = await vscode.window.showQuickPick(connectionProvider.connectionNameList);
@@ -68,9 +70,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     const getValueCommand = vscode.commands.registerCommand(
         'redis.getValue',
-        async key => {
+        async (key: KeyTreeItem) => {
             if (key) {
-                const value = await connectionProvider.getValue(key.connection, key.name);
+                const value = await connectionProvider.getValue(key.connectionName, key.name);
                 outputChannel.appendLine(`Output: ${value}\n`);
                 outputChannel.show();
             }
