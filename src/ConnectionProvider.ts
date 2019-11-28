@@ -24,9 +24,14 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
             case element === undefined:
                 return this.connectionList;
             case element instanceof ConnectionTreeItem:
-                const connection = (element as ConnectionTreeItem).name;
-                const keys = await this.connections.get(element!.label!)?.client?.keys('*');
-                return keys?.map(key => new KeyTreeItem(connection, key)) ?? [];
+                const connectionName = (element as ConnectionTreeItem).name;
+                const connection = this.connections.get(element!.label!);
+                const keys = await connection?.client?.keys('*');
+                const promises = keys?.map(async key => {
+                    const type = await connection?.client?.type(key) ?? '';
+                    return new KeyTreeItem(connectionName, key, type);
+                }) ?? [];
+                return await Promise.all(promises);
             default:
                 return [];
         }
