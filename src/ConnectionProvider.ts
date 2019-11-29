@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import ConnectionTreeItem from './ConnectionTreeItem';
 import KeyTreeItem from './KeyTreeItem';
 import { getConnections } from './utils';
+import { Type } from './defines';
 
 export default class ConnectionProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
@@ -29,7 +30,7 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
                 const keys = await connection?.client?.keys('*');
                 const promises = keys?.map(async key => {
                     const type = await connection?.client?.type(key) ?? '';
-                    return new KeyTreeItem(connectionName, key, type);
+                    return new KeyTreeItem(connectionName, key, type as Type);
                 }) ?? [];
                 return await Promise.all(promises);
             default:
@@ -75,11 +76,17 @@ export default class ConnectionProvider implements vscode.TreeDataProvider<vscod
         }
     }
 
-    public async getValue(connectionName: string, key: string) {
+    public async getValue(connectionName: string, key: string, type: string) {
         const item = this.connections.get(connectionName);
-        if (item) {
-            return await item.client.get(key);
-        }
+        if (!item) return;
+        const value =
+            type === Type.STRING ? await item.client.get(key):
+            type === Type.LIST   ? await item.client.lrange(key, 0, -1):
+            type === Type.SET    ? await item.client.smembers(key):
+            type === Type.ZSET   ? await item.client.zrange(key, 0, -1):
+            type === Type.HASH   ? await item.client.hgetall(key):
+            undefined;
+        return JSON.stringify(value, null, 2);
     }
 
     public async setKey(connection: string, key: string, value: string) {

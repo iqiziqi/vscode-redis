@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
             const value = await vscode.window.showInputBox();
             if (!value) return;
             connectionProvider.setKey(connectionName, key, value);
-        }
+        },
     )
 
     const deleteKeyCommand = vscode.commands.registerCommand(
@@ -65,17 +65,16 @@ export function activate(context: vscode.ExtensionContext) {
             const name = await vscode.window.showQuickPick(keys);
             if (!name) return;
             connectionProvider.deleteKey(connection, name);
-        }
+        },
     );
 
     const getValueCommand = vscode.commands.registerCommand(
         'redis.getValue',
         async (key: KeyTreeItem) => {
-            if (key) {
-                const value = await connectionProvider.getValue(key.connectionName, key.name);
-                outputChannel.appendLine(`Output: ${value}\n`);
-                outputChannel.show();
-            }
+            if (!key) return;
+            const value = await connectionProvider.getValue(key.connectionName, key.name, key.type);
+            outputChannel.appendLine(`Output:\n${value}\n`);
+            outputChannel.show();
         },
     );
 
